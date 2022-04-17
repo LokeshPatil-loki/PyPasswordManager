@@ -1,0 +1,29 @@
+
+"""LeftFrame.py"""
+from tkinter import *
+class LeftFrame(Frame):
+
+    def __init__(self,master,bg="#F6F6F6"):
+        super().__init__(master,width=400,height=700,bg=bg)
+        self.bg = bg
+        # self.__modeButtons()
+        # for x in range(0,10):
+        #     self.__PasswordItem()
+    def __modeButtons(self):
+        mode_frame = Frame(self,width=400)
+        mode_frame.pack(padx=10,pady=10,side=TOP,anchor=NW)
+        btnModePassword = Button(mode_frame,text="Password",font="nunito 10",relief=SOLID,bd=1,width=20)
+        btnModePassword.grid(column=0,row=1)
+        #
+        btnModeNotes = Button(mode_frame, text="Notes", font="nunito 10", relief=SOLID,bd=1,width=20)
+        btnModeNotes.grid(column=1,row=1)
+    def __PasswordItem(self):
+        item_frame = Frame(self,width=400,height=60,relief=SOLID,bd=1,bg=self.bg)
+        item_frame.pack(padx=10,pady=10,side=TOP,anchor=NW,ipady=5,ipadx=10)
+        item_frame.pack_propagate(0)
+
+        lblAccountName = Label(item_frame,text="Google",relief=FLAT,font="nunito 12",bg=self.bg)
+        lblAccountName.pack(side=TOP,anchor=NW,pady=(10,2.5),padx=10)
+
+        lblUsername = Label(item_frame, text="patillokesh56@gmail.com", relief=FLAT,bg=self.bg , font="nunito 12")
+        lblUsername.pack(side=TOP,anchor=NW,pady=(0,10),padx=10)
