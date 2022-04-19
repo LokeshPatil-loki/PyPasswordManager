@@ -2,6 +2,7 @@ class Shared:
     __frame_left = None
     __frame_right = None
     __frame_middle = None
+    __db = None
 
     @classmethod
     def setFrameLeft(cls,value):
@@ -16,6 +17,10 @@ class Shared:
         Shared.__frame_right = value
 
     @classmethod
+    def setDB(cls,value):
+        Shared.__db = value
+
+    @classmethod
     def getFrameLeft(cls):
         return Shared.__frame_left
 
@@ -26,3 +31,7 @@ class Shared:
     @classmethod
     def getFrameRight(cls):
         return Shared.__frame_right
+
+    @classmethod
+    def getDB(cls):
+        return Shared.__db

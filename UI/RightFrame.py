@@ -1,3 +1,4 @@
+import tkinter.messagebox
 from tkinter import *
 
 from UI.Shared import Shared
@@ -5,7 +6,6 @@ from UI.consts import *
 from PIL import Image
 from Model.Account import *
 from Database import DBPassMan
-import time
 class RightFrame(Frame):
     """
         __var_accountname
@@ -20,6 +20,11 @@ class RightFrame(Frame):
 
     def __init__(self,master,db=DBPassMan()):
         super().__init__(master,width=right_width,height=right_height,bg=right_background,highlightbackground="#000000",highlightcolor="#000000",highlightthickness=2)
+        self.UPDATE_MODE = 1
+        self.SAVE_MODE = 0
+        self.ACCOUNT_NAME_INDEX = 0
+        self.USERNAME_INDEX = 1
+        self.Password_INDEX = 2
         self.db = db
         self.__var_accountname = ""
         self.__var_username = ""
@@ -33,7 +38,7 @@ class RightFrame(Frame):
         self.btnEdit.configure(activebackground=left_accentColor, activeforeground=left_boldTextColor,command=self.toggleEditing)
         self.containerFrame()
 
-    def toggleEditing(self):
+    def toggleEditing(self,updateMode=True):
         if self.isEditable:
             self.btnEdit.configure(bg=right_container_input_background)
             self.isEditable = False
@@ -44,14 +49,16 @@ class RightFrame(Frame):
             self.isEditable = True
             for x in self.inputList:
                 x.configure(state="normal")
-
-
+            if updateMode:
+                self.inputList[0].configure(state=DISABLED)
 
     def containerFrame(self):
         container_password_frame = Frame(self, width=right_container_width, height=right_container_height,
                                          bg=right_container_background)
+        self.container_password_frame = container_password_frame
         container_password_frame.pack(anchor=CENTER, pady=106)
         container_password_frame.pack_propagate(0)
+        # self.showContainerFrame()
 
         lblAccountName = Label(container_password_frame, text="Account Name")
         lblAccountName.pack(side=TOP, anchor=NW, padx=right_container_label_padding, pady=right_container_label_padding)
@@ -71,7 +78,7 @@ class RightFrame(Frame):
         txtPassword = Entry(container_password_frame, textvariable=self.__var_password, show="*")
         txtPassword.pack(side=LEFT, anchor=NW, padx=right_container_Entry_padding)
 
-        self.container_password_frame = container_password_frame
+
 
         self.imgShow = resizeImage(Image.open("UI/show.png"))
         self.imgHide = resizeImage(Image.open("UI/hide.png"))
@@ -91,10 +98,6 @@ class RightFrame(Frame):
         self.__addSaveButton()
         self.btnUpdate = None
 
-
-
-
-
         self.inputList = [txtAccountName, txtUsername, txtPassword]
         self.labelList = [lblAccountName, lblUsername, lblPassword]
         for x, y in zip(self.inputList, self.labelList):
@@ -105,6 +108,8 @@ class RightFrame(Frame):
             else:
                 x.configure(width=29)
             y.configure(font=right_container_label_font, fg="#ffffff", bg=right_container_background)
+        self.isEditable = True
+        self.toggleEditing()
 
     def __addSaveButton(self):
         btnSave = Button(self.container_password_frame, text="Save", font=right_container_entry_font, fg="#ffffff",
@@ -130,6 +135,8 @@ class RightFrame(Frame):
             self.btnUpdate.pack_forget()
 
     def refresh(self,account):
+        self.selectedAccount = account
+        self.savePasswordMode()
         self.__var_password = account.password
         self.__var_username = account.username
         self.__var_accountname = account.account_name
@@ -150,10 +157,8 @@ class RightFrame(Frame):
         self.inputList[2].insert(0,account.password)
 
         self.isEditable = True
-        self.toggleEditing()
+        self.toggleEditing(False)
         print(self.isEditable)
-        # for x in self.inputList:
-        #     x.configure(state=DISABLED)
 
 
         # Remove Save Button of Right Frame
@@ -169,15 +174,20 @@ class RightFrame(Frame):
         self.__addUpdateButton()
 
     def __save(self):
-        status = self.db.saveAccount((self.inputList[0].get(),self.inputList[1].get(),self.inputList[2].get()))
-        accountList = self.db.getAllAccounts()
-        Shared.getFrameMiddle().refresh(accountList)
+        if self.__validation(self.SAVE_MODE):
+            status = self.db.saveAccount((self.inputList[0].get(),self.inputList[1].get(),self.inputList[2].get()))
+            accountList = self.db.getAllAccounts()
+            Shared.getFrameMiddle().refresh(accountList)
         # print("Left:",id(Shared.getFrameLeft()))
         # print("Middle:", id(Shared.getFrameMiddle()))
         # print("Right:", id(Shared.getFrameRight()))
 
     def __update(self):
-        print("Updating Values......")
+        if self.__validation(self.UPDATE_MODE):
+            print("Updating Values......")
+            self.selectedAccount.username = self.inputList[1].get()
+            self.selectedAccount.password = self.inputList[2].get()
+            self.db.updateAccount(self.selectedAccount)
 
     def __showHidePassword(self,event):
         # pass
@@ -191,6 +201,47 @@ class RightFrame(Frame):
             self.inputList[2].configure(show="")
             # self.inputList[2].configure(image=self.imgHide)
             self.isShowPassword = True
+
+    def savePasswordMode(self):
+        self.btnEdit.place_forget()
+        self.btnDelete.place_forget()
+        self.__removeUpdateButton()
+        self.__removeSaveButton()
+        self.__addSaveButton()
+        self.isEditable = False
+        self.clearFields()
+
+
+    def clearFields(self):
+        self.toggleEditing(False)
+        for x in self.inputList:
+            x.delete(0,END)
+
+    def __validation(self,mode):
+        if mode == self.SAVE_MODE:
+            if not self.inputList[self.ACCOUNT_NAME_INDEX].get().strip():
+                tkinter.messagebox.showerror("Validation Error","Account Name cannot be empty")
+                return False
+            elif not self.inputList[self.USERNAME_INDEX].get().strip():
+                tkinter.messagebox.showerror("Validation Error", "Username cannot be empty")
+                return False
+            elif not self.inputList[self.Password_INDEX].get().strip():
+                tkinter.messagebox.showerror("Validation Error", "Password cannot be empty")
+                return False
+            else:
+                return True
+        elif mode == self.UPDATE_MODE:
+            if not self.inputList[self.USERNAME_INDEX].get().strip():
+                tkinter.messagebox.showerror("Validation Error", "Username cannot be empty")
+                return False
+            elif not self.inputList[self.Password_INDEX].get().strip():
+                tkinter.messagebox.showerror("Validation Error", "Password cannot be empty")
+                return False
+            else:
+                return True
+        return False
+
+
 
 
 

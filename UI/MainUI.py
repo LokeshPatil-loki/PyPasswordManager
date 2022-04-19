@@ -14,6 +14,7 @@ class MainUI():
         self.tk = Tk()
         self.tk.geometry("1300x700")
         # tk.configure(background="#FFFFFF")
+        Shared.setDB(self.db)
 
         self.frame_left = LeftFrame(self.tk)
         self.frame_left.pack(side=LEFT,anchor=NW,expand=Y)

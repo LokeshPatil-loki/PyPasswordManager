@@ -19,19 +19,30 @@ class MiddleFrame(Frame):
         self.__addBottomFrame()
         self.count = 1
 
+    def __search(self,event):
+        searchString = self.searchVar.get()+event.char
+        print("Search String",len(searchString.strip()))
+        if len(searchString.strip()) >= 1:
+            self.refresh(Shared.getDB().searchAccount(searchString))
+        elif len(searchString.strip()) == 0:
+            print("less than 0")
+            self.refresh(Shared.getDB().getAllAccounts())
+
     def __addTopFrame(self):
+        self.searchVar = StringVar()
         top_frame = Frame(self,bg=middle_background,height=70)
         top_frame.pack(side=TOP,anchor=NW,fill="x")
         top_frame.pack_propagate(0)
 
-        searchBox = Entry(top_frame,font="nunito 16",bg=middle_searchBgBoxColor,fg="#ffffff",relief=FLAT,justify=CENTER,width=26)
+        searchBox = Entry(top_frame,font="nunito 16",textvariable=self.searchVar,bg=middle_searchBgBoxColor,fg="#ffffff",relief=FLAT,justify=CENTER,width=26)
         searchBox.pack(side=LEFT,anchor=CENTER,expand=0,padx=(15,0),pady=15)
         searchBox.propagate(0)
+        searchBox.bind("<Key>",self.__search)
 
         image = resizeImage(Image.open("UI/add.png"))
         self.addImage = image
 
-        btnAddCancel = Button(top_frame,text="+",fg="#ffffff",font="nunito 25 bold",bg=middle_accentColor,width=30,height=30,command=self.__addCancel)
+        btnAddCancel = Button(top_frame,text="+",fg="#ffffff",font="nunito 25 bold",bg=middle_accentColor,width=30,height=30,command=self.addCancel)
         btnAddCancel.pack(side=LEFT,anchor=CENTER,expand=0,padx=(15,15),pady=15)
         btnAddCancel.propagate(0)
         self.btnAddCancel = btnAddCancel
@@ -74,12 +85,6 @@ class MiddleFrame(Frame):
         for x in self.bottom_frame.winfo_children():
             total_height += x["height"]
         self.bottom_frame_height = total_height
-        # print("Total Height:",total_height)
-        # print("LEN",len(self.bottom_frame.winfo_children()))
-        # print("Canvas Height:",my_canvas["height"])
-        # my_canvas.configure(height=5000)
-        # my_canvas["height"] = 5000
-
 
 
     def refresh(self,accountList):
@@ -91,21 +96,19 @@ class MiddleFrame(Frame):
         self.main_frame.destroy()
         self.main_frame.pack_forget()
         del(self.main_frame)
-        # self.bottom_frame.destroy()
-        # self.bottom_frame.pack_forget()
-        # del(self.bottom_frame)
-        # self.bottom_frame = Frame(self.my_canvas, bg=middle_background)
-        # self.my_canvas.create_window((0, 0), window=self.bottom_frame, anchor="nw")
-        self.__addBottomFrame(height=(self.bottom_frame_height+(800+200*self.count)))
+        # self.__addBottomFrame(height=(self.bottom_frame_height+(800+200*self.count)))
+        self.__addBottomFrame(height=self.bottom_frame_height)
         self.count += 1
 
 
 
-    def __addCancel(self):
+    def addCancel(self):
         if self.btnAddCancel["text"] == "+":
             self.btnAddCancel.configure(text="x")
+            Shared.getFrameRight().savePasswordMode()
         else:
             self.btnAddCancel.configure(text="+")
+            Shared.getFrameRight().clearFields()
 
 class PasswordItem(Frame):
     def __init__(self,master,account,width=446 - 40,height=83):
@@ -125,12 +128,14 @@ class PasswordItem(Frame):
         self.lblAccountName = lblAccountName
         self.lblUserName = lblUserName
         self.__addClickListener()
-        print("ITEM HEIGHT:",self["height"])
+        # print("ITEM HEIGHT:",self["height"])
 
     def __onClick(self,event):
-        print(self.account.account_name)
-        print(self.account.username)
-        print(self.account.password)
+        # print(self.account.account_name)
+        # print(self.account.username)
+        # print(self.account.password)
+        Shared.getFrameMiddle().btnAddCancel.configure(text="+")
+
         Shared.getFrameRight().refresh(self.account)
 
     def __addClickListener(self):
