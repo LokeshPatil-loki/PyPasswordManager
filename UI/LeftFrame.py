@@ -1,6 +1,7 @@
 from tkinter import *
 
 import UI.LoginUI
+import UI.RightFrame
 from UI.Shared import Shared
 from UI.consts import *
 class LeftFrame(Frame):
@@ -14,7 +15,7 @@ class LeftFrame(Frame):
         btnPassword.pack(side=TOP,anchor=CENTER,pady=10)
         btnPassword.configure(activebackground=left_accentColor,activeforeground=left_boldTextColor)
 
-        btnNotes = Button(self, text="Notes", font="nunito 21", bg=left_background, fg=left_boldTextColor, width=left_width, relief=FLAT, highlightthickness=0)
+        btnNotes = Button(self, text="Notes",command=self.switchToNotes, font="nunito 21", bg=left_background, fg=left_boldTextColor, width=left_width, relief=FLAT, highlightthickness=0)
         btnNotes.pack(side=TOP, anchor=CENTER, pady=10)
         btnNotes.configure(activebackground=left_accentColor, activeforeground=left_boldTextColor)
 
@@ -35,3 +36,11 @@ class LeftFrame(Frame):
     def logout(self):
         self.master.destroy()
         UI.LoginUI.LoginUI(Shared.getDB())
+
+    def switchToNotes(self,):
+        Shared.getFrameRight().destroy()
+        frame_right = UI.RightFrame.RightFrame(self.master,Shared.getDB(),False)
+        Shared.setFrameRight(frame_right)
+        frame_right.pack(side=LEFT,anchor=W,expand=Y)
+        frame_right.pack_propagate(0)
+

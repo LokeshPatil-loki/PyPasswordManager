@@ -85,7 +85,7 @@ class MiddleFrame(Frame):
         # For Auto Dynamically adjusting contents of bottom frame
         for x in self.accountList:
             # print(x.account_name)
-            item1 = PasswordItem(self.bottom_frame, x)
+            item1 = NotesItem(self.bottom_frame, x)
             item1.pack(side=TOP, anchor=NW, expand=0, fill=BOTH)
         total_height = 0
         for x in self.bottom_frame.winfo_children():
@@ -117,6 +117,43 @@ class MiddleFrame(Frame):
         else:
             self.btnAddCancel.configure(text="+")
             Shared.getFrameRight().clearFields()
+
+class NotesItem(Frame):
+    def __init__(self,master,account,width=446 - 40,height=83):
+        super().__init__(master,width=width,height=height,relief=FLAT,bg=middle_background)
+        self.account = account
+        frame = Frame(self,width=width,height=height,bg=middle_background,bd=1,highlightthickness=1,highlightcolor=middle_strokeColor,highlightbackground=middle_strokeColor)
+        frame.pack(side=TOP,anchor=NW,expand=FALSE,padx=10,pady=10)
+        frame.pack_propagate(0)
+
+        lblAccountName = Label(frame,text=account.account_name,font="nunito 20 bold",bg=middle_background,fg=middle_regularTextColor)
+        lblAccountName.pack(side=TOP,anchor=CENTER,pady=31)
+
+        self.frame = frame
+        self.lblAccountName = lblAccountName
+        self.__addClickListener()
+        # print("ITEM HEIGHT:",self["height"])
+
+    def __onClick(self,event):
+        # print(self.account.account_name)
+        # print(self.account.username)
+        # print(self.account.password)
+        Shared.getFrameMiddle().btnAddCancel.configure(text="+")
+        Shared.getFrameRight().refresh(self.account)
+        for item in Shared.getFrameMiddle().bottom_frame.winfo_children():
+            item.nonSelectedColor()
+        self.selectedColor()
+
+    def selectedColor(self):
+        self.configure(bg=middle_accentColor)
+
+    def nonSelectedColor(self):
+        self.configure(bg=middle_background)
+
+    def __addClickListener(self):
+        self.frame.bind("<Button-1>",self.__onClick)
+        self.lblAccountName.bind("<Button-1>", self.__onClick)
+        self.bind("<Button-1>",self.__onClick)
 
 class PasswordItem(Frame):
     def __init__(self,master,account,width=446 - 40,height=83):
@@ -159,5 +196,6 @@ class PasswordItem(Frame):
         self.lblAccountName.bind("<Button-1>", self.__onClick)
         self.lblUserName.bind("<Button-1>", self.__onClick)
         self.bind("<Button-1>",self.__onClick)
+
 
 

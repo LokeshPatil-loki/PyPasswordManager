@@ -29,7 +29,7 @@ class MainUI():
         # consts.frame_middle = self.frame_middle
         consts.setMiddleFrame(self.frame_middle)
 
-        self.frame_right = RightFrame(self.tk,self.db)
+        self.frame_right = RightFrame(self.tk,self.db,False)
         self.frame_right.pack(side=LEFT,anchor=W,expand=Y)
         self.frame_right.pack_propagate(0)
         # consts.frame_right = self.frame_right

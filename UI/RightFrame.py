@@ -11,16 +11,16 @@ class RightFrame(Frame):
         __var_accountname
         __var_username
         __var_confirmPassword
-        containerFrame()
+        containerPasswordFrame()
         container_password_frame
         btnSave
         inputList
         labelList
     """
 
-    def __init__(self,master,db=DBPassMan()):
+    def __init__(self,master,db=DBPassMan(),isPasswordMode=True):
         super().__init__(master,width=right_width,height=right_height,bg=right_background,highlightbackground="#000000",highlightcolor="#000000",highlightthickness=2)
-        self.isPasswordMode = True
+        self.isPasswordMode = isPasswordMode
         self.UPDATE_MODE = 1
         self.SAVE_MODE = 0
         self.ACCOUNT_NAME_INDEX = 0
@@ -37,7 +37,10 @@ class RightFrame(Frame):
         self.btnEdit = Button(self,text="Edit",font="nunito 14 bold",fg="#ffffff",bg=right_container_input_background)
         # self.btnEdit.place(x=430,y=50,width=70,height=40)
         self.btnEdit.configure(activebackground=left_accentColor, activeforeground=left_boldTextColor,command=self.toggleEditing)
-        self.containerFrame()
+        if self.isPasswordMode:
+            self.containerPasswordFrame()
+        else:
+            self.containerNotesFrame()
 
     def toggleEditing(self,updateMode=True):
         if self.isEditable:
@@ -53,7 +56,7 @@ class RightFrame(Frame):
             if updateMode:
                 self.inputList[0].configure(state=DISABLED)
 
-    def containerFrame(self):
+    def containerPasswordFrame(self):
         container_password_frame = Frame(self, width=right_container_width, height=right_container_height,
                                          bg=right_container_background)
         self.container_password_frame = container_password_frame
@@ -112,6 +115,30 @@ class RightFrame(Frame):
         self.isEditable = True
         self.toggleEditing()
 
+    def containerNotesFrame(self):
+        containerNotesFrame = Frame(self, width=right_container_width, height=right_container_height,
+              bg=right_container_background)
+        self.container_password_frame = containerNotesFrame
+        containerNotesFrame.pack(anchor=CENTER, pady=106)
+        containerNotesFrame.pack_propagate(0)
+
+        lblTitle = Label(containerNotesFrame, text="Title")
+        lblTitle.configure(font=right_container_label_font, fg="#ffffff", bg=right_container_background)
+        lblTitle.pack(side=TOP, anchor=NW, padx=right_container_label_padding, pady=right_container_label_padding)
+
+        txtTitle = Entry(containerNotesFrame)
+        txtTitle.configure(bg=right_container_input_background, font=right_container_entry_font, fg="#ffffff",
+                        relief=FLAT, highlightthickness=0,width=37)
+        txtTitle.pack(side=TOP, anchor=NW, padx=right_container_Entry_padding)
+
+        txtNote = Text(containerNotesFrame,bg=right_container_input_background, font=right_container_entry_font, fg="#ffffff",
+                        relief=FLAT, highlightthickness=0,width=37,height=9)
+        txtNote.pack(side=TOP, anchor=NW, padx=right_container_Entry_padding,pady=10)
+        txtNote.propagate(0)
+
+        self.__addSaveButton()
+
+
     def generatePassword(self):
         password = Shared.generatePassword()
         passwordInput = self.inputList[self.Password_INDEX]
@@ -119,11 +146,18 @@ class RightFrame(Frame):
         passwordInput.insert(0,password)
 
     def __addSaveButton(self):
-        btnSave = Button(self.container_password_frame, text="Save", font=right_container_entry_font, fg="#ffffff",
-                         bg=right_container_input_background, width=35, command=self.__save)
+        if self.isPasswordMode:
+            btnSave = Button(self.container_password_frame, text="Save", font=right_container_entry_font, fg="#ffffff",
+                             bg=right_container_input_background, width=37, command=self.__save)
 
-        btnSave.pack(side=TOP, anchor=NW,pady=right_container_label_padding,fill="x")
-        self.btnSave = btnSave
+            btnSave.pack(side=TOP, anchor=NW,pady=right_container_label_padding,fill="x")
+            self.btnSave = btnSave
+        else:
+            btnSave = Button(self.container_password_frame, text="Save", font=right_container_entry_font, fg="#ffffff",
+                             bg=right_container_input_background, width=35, command=self.__save)
+
+            btnSave.pack(side=TOP, anchor=NW, padx=right_container_Entry_padding,pady=(10,0))
+            self.btnSave = btnSave
 
     def __removeSaveButton(self):
         # self.btnSave.destroy()
@@ -181,28 +215,37 @@ class RightFrame(Frame):
         self.__addUpdateButton()
 
     def __save(self):
-        if self.__validation(self.SAVE_MODE):
-            status = self.db.saveAccount((self.inputList[0].get(),self.inputList[1].get(),self.inputList[2].get()))
-            accountList = self.db.getAllAccounts()
-            Shared.getFrameMiddle().refresh(accountList)
-        # print("Left:",id(Shared.getFrameLeft()))
-        # print("Middle:", id(Shared.getFrameMiddle()))
-        # print("Right:", id(Shared.getFrameRight()))
+        if self.isPasswordMode:
+            if self.__validation(self.SAVE_MODE):
+                status = self.db.saveAccount((self.inputList[0].get(),self.inputList[1].get(),self.inputList[2].get()))
+                accountList = self.db.getAllAccounts()
+                Shared.getFrameMiddle().refresh(accountList)
+        else:
+            # TODO ADD Save Note Feature
+            pass
 
     def __delete(self):
-        result = self.db.deleteAccount(self.selectedAccount)
-        if result:
-            self.savePasswordMode()
-            Shared.getFrameMiddle().refresh(self.db.getAllAccounts())
+        if self.isPasswordMode:
+            result = self.db.deleteAccount(self.selectedAccount)
+            if result:
+                self.savePasswordMode()
+                Shared.getFrameMiddle().refresh(self.db.getAllAccounts())
+        else:
+            # TODO Add Delete Note Feature
+            pass
 
     def __update(self):
-        if self.__validation(self.UPDATE_MODE):
-            print("Updating Values......")
-            self.selectedAccount.username = self.inputList[1].get()
-            self.selectedAccount.password = self.inputList[2].get()
-            self.db.updateAccount(self.selectedAccount)
-            self.savePasswordMode()
-            Shared.getFrameMiddle().refresh(self.db.getAllAccounts())
+        if self.isPasswordMode:
+            if self.__validation(self.UPDATE_MODE):
+                print("Updating Values......")
+                self.selectedAccount.username = self.inputList[1].get()
+                self.selectedAccount.password = self.inputList[2].get()
+                self.db.updateAccount(self.selectedAccount)
+                self.savePasswordMode()
+                Shared.getFrameMiddle().refresh(self.db.getAllAccounts())
+        else:
+            # TODO Add Update Note feature
+            pass
 
     def __showHidePassword(self,event):
         # pass
