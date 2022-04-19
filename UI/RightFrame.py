@@ -92,7 +92,7 @@ class RightFrame(Frame):
 
         btnShowHidePassword.bind("<Button-1>",self.__showHidePassword)
 
-        btnGeneratePassword = Button(self.container_password_frame,image = self.imgGenerate,bg=right_container_input_background,width=35,height=30)
+        btnGeneratePassword = Button(self.container_password_frame,image = self.imgGenerate,bg=right_container_input_background,width=35,height=30,command=self.generatePassword)
         btnGeneratePassword.pack(side=TOP,anchor=NW,expand=0,padx=(10,0))
         btnGeneratePassword.propagate(0)
 
@@ -111,6 +111,12 @@ class RightFrame(Frame):
             y.configure(font=right_container_label_font, fg="#ffffff", bg=right_container_background)
         self.isEditable = True
         self.toggleEditing()
+
+    def generatePassword(self):
+        password = Shared.generatePassword()
+        passwordInput = self.inputList[self.Password_INDEX]
+        passwordInput.delete(0,END)
+        passwordInput.insert(0,password)
 
     def __addSaveButton(self):
         btnSave = Button(self.container_password_frame, text="Save", font=right_container_entry_font, fg="#ffffff",

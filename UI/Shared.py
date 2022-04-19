@@ -47,7 +47,7 @@ class Shared:
         numbers = "0123456789"
         charset = [specialChars, upperCaseLetter, numbers, lowerCaseLetters]
         password = ""
-        for x in range(0, 30):
+        for x in range(0, 28):
             index = random.randint(0, 3)
             selectedSet = charset[index]
             index = random.randint(0, 3)
