@@ -6,6 +6,9 @@ class Shared:
     __frame_right = None
     __frame_middle = None
     __db = None
+    __loginUI = None
+    __RegisterUI = None
+
 
     @classmethod
     def setFrameLeft(cls,value):
@@ -24,6 +27,14 @@ class Shared:
         Shared.__db = value
 
     @classmethod
+    def setLoginUI(cls,value):
+        Shared.__loginUI = value
+
+    @classmethod
+    def setRegisterUI(cls,value):
+        Shared.__RegisterUI = value
+
+    @classmethod
     def getFrameLeft(cls):
         return Shared.__frame_left
 
@@ -38,6 +49,14 @@ class Shared:
     @classmethod
     def getDB(cls):
         return Shared.__db
+
+    @classmethod
+    def getLoginUI(cls):
+        return Shared.__loginUI
+
+    @classmethod
+    def getRegisterUI(cls):
+        return Shared.__RegisterUI
 
     @classmethod
     def generatePassword(cls):

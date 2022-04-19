@@ -52,6 +52,22 @@ class DBPassMan:
             self.loggedInUser = User(result[0][0],result[0][1],result[0][2])
             return self.loggedInUser
 
+    def register(self,username,password):
+        print("Username:",username)
+        print("Password:",password)
+        sql = f"Insert into tbl_users(username, password) values('{username}','{password}')"
+        print(sql)
+        cursor = self.con.cursor()
+        cursor.execute(sql)
+        self.con.commit()
+        rowCount = cursor.rowcount
+
+        cursor.close()
+        if rowCount == 0:
+            return None
+        else:
+            return self.login(username,password)
+
     def saveAccount(self,values):
         try:
             sql = "Insert into tbl_passwords(userid,acc_name,username,password) values(%s,%s,%s,%s)"
@@ -106,7 +122,7 @@ class DBPassMan:
         return accountlist
 
     def deleteAccount(self,account):
-        sql = f"delete from tbl_password where acc_name = '{account.account_name}' and userid = {account.owner}"
+        sql = f"delete from tbl_passwords where acc_name = '{account.account_name}' and userid = {account.owner}"
         cursor = self.con.cursor()
         cursor.execute(sql)
         result = cursor.rowcount

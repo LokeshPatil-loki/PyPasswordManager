@@ -32,7 +32,7 @@ class RightFrame(Frame):
         self.__var_password = ""
         self.__var_confirmPassword = ""
         self.isEditable = True
-        self.btnDelete = Button(self,text="Delete",font="nunito 14 bold",fg="#ffffff",bg=right_container_input_background)
+        self.btnDelete = Button(self,text="Delete",font="nunito 14 bold",fg="#ffffff",bg=right_container_input_background,command=self.__delete)
         # self.btnDelete.place(x=510,y=50,width=70,height=40)
         self.btnEdit = Button(self,text="Edit",font="nunito 14 bold",fg="#ffffff",bg=right_container_input_background)
         # self.btnEdit.place(x=430,y=50,width=70,height=40)
@@ -188,6 +188,12 @@ class RightFrame(Frame):
         # print("Left:",id(Shared.getFrameLeft()))
         # print("Middle:", id(Shared.getFrameMiddle()))
         # print("Right:", id(Shared.getFrameRight()))
+
+    def __delete(self):
+        result = self.db.deleteAccount(self.selectedAccount)
+        if result:
+            self.savePasswordMode()
+            Shared.getFrameMiddle().refresh(self.db.getAllAccounts())
 
     def __update(self):
         if self.__validation(self.UPDATE_MODE):

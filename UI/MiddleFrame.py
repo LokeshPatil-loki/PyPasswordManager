@@ -90,7 +90,8 @@ class MiddleFrame(Frame):
         total_height = 0
         for x in self.bottom_frame.winfo_children():
             total_height += x["height"]
-        total_height += self.bottom_frame.winfo_children()[0]["height"]*2
+        if len(self.bottom_frame.winfo_children()):
+            total_height += self.bottom_frame.winfo_children()[0]["height"]*2
         self.bottom_frame_height = total_height
 
 

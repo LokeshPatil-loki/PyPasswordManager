@@ -2,13 +2,16 @@ from tkinter import *
 # from UI.MiddleFrame import MiddleFrame
 # from UI.LeftFrame import LeftFrame
 # from UI.RightFrame import RightFrame
+from UI.LoginUI import LoginUI
 from UI.MainUI import *
 from Database import *
 import random
 db = DBPassMan()
-loggedInUser = db.login("loki","loki")
-if loggedInUser:
-    MainUI(db)
+LoginUI(db)
+
+# loggedInUser = db.login("loki","loki")
+# if loggedInUser:
+#     MainUI(db)
 #     print(loggedInUser.username)
 #     tk = Tk()
 #     tk.geometry("1300x700")
