@@ -43,7 +43,7 @@ class DBPassMan:
         cursor = self.con.cursor()
         cursor.execute(sql,values)
         result = cursor.fetchall()
-        print("len: ",len(result))
+        # print("len: ",len(result))
         cursor.close()
         if len(result) == 0:
             print("Incorrect Username / Password")
@@ -73,7 +73,7 @@ class DBPassMan:
         cursor.execute(sql,(self.loggedInUser.id,))
         result = cursor.fetchall()
         cursor.close()
-        print(result)
+        # print(result)
         accountlist = []
         for x in result:
             accountlist.append(Account(x[0],x[1],x[2],x[3],x[4]))
@@ -82,21 +82,21 @@ class DBPassMan:
     def updateAccount(self,account):
         sql = f"Update tbl_passwords set username = '{account.username}', password = '{account.password}' where userid = {account.owner} and acc_name = '{account.account_name}'"
         # values = (account.username,account.password,account.owner,account.account_name)
-        print(sql)
+        # print(sql)
         cursor = self.con.cursor()
         cursor.execute(sql)
         self.con.commit()
         cursor.close()
-        print(sql)
-        print("id",account.id)
-        print("Userid",account.owner)
-        print("Account Name",account.account_name)
-        print("Username",account.username)
-        print("Password",account.password)
+        # print(sql)
+        # print("id",account.id)
+        # print("Userid",account.owner)
+        # print("Account Name",account.account_name)
+        # print("Username",account.username)
+        # print("Password",account.password)
 
     def searchAccount(self,searchString):
         sql = f"select * from tbl_passwords where userid = {self.loggedInUser.id} and acc_name like '%{searchString}%' order by id desc "
-        print(sql)
+        # print(sql)
         cursor = self.con.cursor()
         cursor.execute(sql)
         result = cursor.fetchall()
@@ -104,4 +104,12 @@ class DBPassMan:
         for x in result:
             accountlist.append(Account(x[0],x[1],x[2],x[3],x[4]))
         return accountlist
+
+    def deleteAccount(self,account):
+        sql = f"delete from tbl_password where acc_name = '{account.account_name}' and userid = {account.owner}"
+        cursor = self.con.cursor()
+        cursor.execute(sql)
+        result = cursor.rowcount
+        cursor.close()
+        return bool(result)
 

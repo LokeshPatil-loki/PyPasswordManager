@@ -1,3 +1,6 @@
+import string
+import random
+
 class Shared:
     __frame_left = None
     __frame_right = None
@@ -35,3 +38,18 @@ class Shared:
     @classmethod
     def getDB(cls):
         return Shared.__db
+
+    @classmethod
+    def generatePassword(cls):
+        specialChars = """ !"#$%&'()*+,-./:;<=>?@[\]^_`{|}~"""
+        upperCaseLetter = string.ascii_uppercase
+        lowerCaseLetters = string.ascii_lowercase
+        numbers = "0123456789"
+        charset = [specialChars, upperCaseLetter, numbers, lowerCaseLetters]
+        password = ""
+        for x in range(0, 30):
+            index = random.randint(0, 3)
+            selectedSet = charset[index]
+            index = random.randint(0, 3)
+            password += selectedSet[index]
+        return password

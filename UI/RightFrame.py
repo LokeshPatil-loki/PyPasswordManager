@@ -20,6 +20,7 @@ class RightFrame(Frame):
 
     def __init__(self,master,db=DBPassMan()):
         super().__init__(master,width=right_width,height=right_height,bg=right_background,highlightbackground="#000000",highlightcolor="#000000",highlightthickness=2)
+        self.isPasswordMode = True
         self.UPDATE_MODE = 1
         self.SAVE_MODE = 0
         self.ACCOUNT_NAME_INDEX = 0
@@ -188,6 +189,8 @@ class RightFrame(Frame):
             self.selectedAccount.username = self.inputList[1].get()
             self.selectedAccount.password = self.inputList[2].get()
             self.db.updateAccount(self.selectedAccount)
+            self.savePasswordMode()
+            Shared.getFrameMiddle().refresh(self.db.getAllAccounts())
 
     def __showHidePassword(self,event):
         # pass

@@ -21,12 +21,16 @@ class MiddleFrame(Frame):
 
     def __search(self,event):
         searchString = self.searchVar.get()+event.char
-        print("Search String",len(searchString.strip()))
-        if len(searchString.strip()) >= 1:
-            self.refresh(Shared.getDB().searchAccount(searchString))
-        elif len(searchString.strip()) == 0:
+        searchString = searchString.strip()
+        print("inside search")
+        self.searchVar.set(searchString.strip())
+        # print(searchString == "123")
+        print(searchString)
+        if searchString == "":
             print("less than 0")
             self.refresh(Shared.getDB().getAllAccounts())
+        else:
+            self.refresh(Shared.getDB().searchAccount(searchString))
 
     def __addTopFrame(self):
         self.searchVar = StringVar()
@@ -37,7 +41,8 @@ class MiddleFrame(Frame):
         searchBox = Entry(top_frame,font="nunito 16",textvariable=self.searchVar,bg=middle_searchBgBoxColor,fg="#ffffff",relief=FLAT,justify=CENTER,width=26)
         searchBox.pack(side=LEFT,anchor=CENTER,expand=0,padx=(15,0),pady=15)
         searchBox.propagate(0)
-        searchBox.bind("<Key>",self.__search)
+        searchBox.bind("<KeyRelease>",self.__search)
+        self.searchBox = searchBox
 
         image = resizeImage(Image.open("UI/add.png"))
         self.addImage = image
@@ -74,16 +79,18 @@ class MiddleFrame(Frame):
         if height == 0:
             my_canvas.create_window((0, 0), window=bottom_frame, anchor=NW)
         else:
-            print(height)
+            # print(height)
             my_canvas.create_window((0, 0), window=bottom_frame, anchor=NW,height=height)
 
+        # For Auto Dynamically adjusting contents of bottom frame
         for x in self.accountList:
-            print(x.account_name)
+            # print(x.account_name)
             item1 = PasswordItem(self.bottom_frame, x)
             item1.pack(side=TOP, anchor=NW, expand=0, fill=BOTH)
         total_height = 0
         for x in self.bottom_frame.winfo_children():
             total_height += x["height"]
+        total_height += self.bottom_frame.winfo_children()[0]["height"]*2
         self.bottom_frame_height = total_height
 
 
@@ -135,8 +142,16 @@ class PasswordItem(Frame):
         # print(self.account.username)
         # print(self.account.password)
         Shared.getFrameMiddle().btnAddCancel.configure(text="+")
-
         Shared.getFrameRight().refresh(self.account)
+        for item in Shared.getFrameMiddle().bottom_frame.winfo_children():
+            item.nonSelectedColor()
+        self.selectedColor()
+
+    def selectedColor(self):
+        self.configure(bg=middle_accentColor)
+
+    def nonSelectedColor(self):
+        self.configure(bg=middle_background)
 
     def __addClickListener(self):
         self.frame.bind("<Button-1>",self.__onClick)
