@@ -220,6 +220,8 @@ class RightFrame(Frame):
                 status = self.db.saveAccount((self.inputList[0].get(),self.inputList[1].get(),self.inputList[2].get()))
                 accountList = self.db.getAllAccounts()
                 Shared.getFrameMiddle().refresh(accountList)
+                for x in self.inputList:
+                    x.delete(0,END)
         else:
             # TODO ADD Save Note Feature
             pass
