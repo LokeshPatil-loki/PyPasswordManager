@@ -85,7 +85,7 @@ class MiddleFrame(Frame):
         # For Auto Dynamically adjusting contents of bottom frame
         for x in self.accountList:
             # print(x.account_name)
-            item1 = NotesItem(self.bottom_frame, x)
+            item1 = PasswordItem(self.bottom_frame, x)
             item1.pack(side=TOP, anchor=NW, expand=0, fill=BOTH)
         total_height = 0
         for x in self.bottom_frame.winfo_children():
