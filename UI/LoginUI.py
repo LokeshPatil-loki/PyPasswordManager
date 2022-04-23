@@ -1,9 +1,14 @@
 import tkinter.messagebox
 from tkinter import *
 
+import PIL
+
 import UI.RegisterUI
 from UI.RegisterUI import RegisterUI
+from PIL import Image
+
 from UI.Shared import Shared
+from UI.consts import resizeImage, right_container_input_background
 
 
 class LoginUI:
@@ -11,6 +16,7 @@ class LoginUI:
         self.db = db
         self.tk = Tk()
         self.tk.geometry("979x578")
+        self.isShowPassword = False
         self.addTitleFrame()
         self.addMainFrame()
         Shared.setLoginUI(self)
@@ -49,8 +55,13 @@ class LoginUI:
         self.lblPassword = Label(self.containerFrame, text="Password",font=font2,bg="#404040",fg="#ffffff")
         self.lblPassword.pack(side=TOP, anchor=NW, padx=38,pady=(28,0))
 
-        self.txtPassword = Entry(self.containerFrame,fg="#ffffff",font=font1,width=426,bg=bg,highlightthickness=1,relief=FLAT,highlightbackground="#5C5C5C",highlightcolor="#5C5C5C")
+        self.txtPassword = Entry(self.containerFrame,show="*",fg="#ffffff",font=font1,width=23,bg=bg,highlightthickness=1,relief=FLAT,highlightbackground="#5C5C5C",highlightcolor="#5C5C5C")
         self.txtPassword.pack(side=TOP, anchor=NW, padx=38,pady=(4,0))
+
+        self.imgShow = resizeImage(PIL.Image.open("UI/show.png"))
+        self.btnShowHidePassword = Label(self.containerFrame,image = self.imgShow,bg=right_container_input_background,width=39,height=39,highlightthickness=1,relief=FLAT,highlightbackground="#5C5C5C",highlightcolor="#5C5C5C")
+        self.btnShowHidePassword.place(x=420,y=209)
+        self.btnShowHidePassword.bind("<Button-1>", self.__showHidePassword)
 
         self.btnLogin = Button(self.containerFrame,command=self.__login,fg="#ffffff",text="Login",font=font1,width=426,bg=bg,highlightthickness=1,relief=FLAT,highlightbackground="#5C5C5C",highlightcolor="#5C5C5C")
         self.btnLogin.pack(side=TOP, anchor=NW, padx=38,pady=(28,0))
@@ -62,16 +73,37 @@ class LoginUI:
         self.tk.mainloop()
 
     def __login(self):
-        loggedInUser = self.db.login(self.txtUsername.get(),self.txtPassword.get())
-        if loggedInUser:
-            self.tk.destroy()
-            UI.MainUI.MainUI(self.db)
+        username = self.txtUsername.get()
+        password = self.txtPassword.get()
+        if not username.strip():
+            tkinter.messagebox.showerror("Validation Error", "Please Enter username")
+            return False
+        elif not password.strip():
+            tkinter.messagebox.showerror("Validation Error", "Please Enter password")
+            return False
         else:
-            tkinter.messagebox.showerror(title="Login Error",message="Invalid Username / Password")
+            loggedInUser = self.db.login(self.txtUsername.get(),self.txtPassword.get())
+            if loggedInUser:
+                self.tk.destroy()
+                UI.MainUI.MainUI(self.db)
+            else:
+                tkinter.messagebox.showerror(title="Login Error",message="Invalid Username / Password")
 
     def goToRegister(self):
         self.tk.destroy()
         UI.RegisterUI.RegisterUI(self.db)
 
+    def __showHidePassword(self,event):
+        # pass
+        if self.isShowPassword:
+            self.txtPassword.configure(show="*")
+            # print(self.inputList[2]["image"])
+            # TODO Change image of Show / Hide Password Button
+            # self.inputList[2].configure(image=self.show)
+            self.isShowPassword = False
+        else:
+            self.txtPassword.configure(show="")
+            # self.inputList[2].configure(image=self.imgHide)
+            self.isShowPassword = True
 
 

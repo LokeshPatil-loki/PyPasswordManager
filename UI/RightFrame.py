@@ -20,7 +20,9 @@ class RightFrame(Frame):
 
     def __init__(self,master,db=DBPassMan(),isPasswordMode=True):
         super().__init__(master,width=right_width,height=right_height,bg=right_background,highlightbackground="#000000",highlightcolor="#000000",highlightthickness=2)
+        self.master = master
         self.isPasswordMode = isPasswordMode
+        self.updateMode = False
         self.UPDATE_MODE = 1
         self.SAVE_MODE = 0
         self.ACCOUNT_NAME_INDEX = 0
@@ -106,7 +108,8 @@ class RightFrame(Frame):
         self.labelList = [lblAccountName, lblUsername, lblPassword]
         for x, y in zip(self.inputList, self.labelList):
             x.configure(bg=right_container_input_background, font=right_container_entry_font, fg="#ffffff",
-                        relief=FLAT, highlightthickness=0)
+                        relief=FLAT, highlightthickness=0,disabledbackground="#7D7D7D",disabledforeground="#3F3C3C")
+            self.bindInputs(x)
             if id(x) != id(txtPassword):
                 x.configure(width=37)
             else:
@@ -127,7 +130,7 @@ class RightFrame(Frame):
         lblTitle.pack(side=TOP, anchor=NW, padx=right_container_label_padding, pady=right_container_label_padding)
 
         txtTitle = Entry(containerNotesFrame)
-        txtTitle.configure(bg=right_container_input_background, font=right_container_entry_font, fg="#ffffff",
+        txtTitle.configure(bg=right_container_input_background,font=right_container_entry_font, fg="#ffffff",
                         relief=FLAT, highlightthickness=0,width=37)
         txtTitle.pack(side=TOP, anchor=NW, padx=right_container_Entry_padding)
 
@@ -136,8 +139,33 @@ class RightFrame(Frame):
         txtNote.pack(side=TOP, anchor=NW, padx=right_container_Entry_padding,pady=10)
         txtNote.propagate(0)
 
+        self.bindInputs(txtTitle)
+        self.bindInputs(txtNote)
+
+        self.txtTitle = txtTitle
+        self.txtNote = txtNote
         self.__addSaveButton()
 
+    def bindInputs(self,x):
+        pop_up_menu = Menu(x,tearoff=0)
+        pop_up_menu.add_command(label="Copy",command=lambda : self.copyToClipboard(x))
+        x.bind("<Button-3>", lambda e: self.contextMenu(e,pop_up_menu))
+
+    def contextMenu(self,event,pop_up_menu):
+        # print(arg.get())
+        try:
+            pop_up_menu.tk_popup(event.x_root,event.y_root,0)
+        finally:
+            pop_up_menu.grab_release()
+
+    def copyToClipboard(self,arg):
+        print("Inside Copy")
+        self.master.clipboard_clear()
+        if isinstance(arg,Text):
+            self.master.clipboard_append(arg.get("1.0",END))
+        else:
+            self.master.clipboard_append(arg.get())
+        self.master.update()
 
     def generatePassword(self):
         password = Shared.generatePassword()
@@ -157,7 +185,26 @@ class RightFrame(Frame):
                              bg=right_container_input_background, width=35, command=self.__save)
 
             btnSave.pack(side=TOP, anchor=NW, padx=right_container_Entry_padding,pady=(10,0))
+            btnSave.configure(command=self.__saveNote)
             self.btnSave = btnSave
+
+    def __saveNote(self):
+        title = self.txtTitle.get()
+        noteData = self.txtNote.get("1.0",END)
+        if self.updateMode:
+            print("Update Mode")
+            self.selectedNote.title = self.txtTitle.get()
+            self.selectedNote.data = self.txtNote.get("1.0",END)
+            self.db.updateNote(self.selectedNote)
+            self.clearNoteFields()
+            for x in Shared.getFrameMiddle().bottom_frame.winfo_children():
+                x.nonSelectedColor()
+        else:
+            print("Save mode")
+            self.db.saveNote((title,noteData))
+            notelist = self.db.getAllNotes()
+            Shared.getFrameMiddle().refresh(notelist)
+            self.clearNoteFields()
 
     def __removeSaveButton(self):
         # self.btnSave.destroy()
@@ -214,6 +261,22 @@ class RightFrame(Frame):
         # Add Update Button
         self.__addUpdateButton()
 
+    def refreshContainerNotesFrame(self,note,updateMode=False):
+        self.updateMode = updateMode
+        self.selectedNote = note
+        self.txtTitle.delete(0,END)
+        self.txtTitle.insert(0,note.title)
+
+        self.txtNote.delete("1.0",END)
+        self.txtNote.insert(END,note.data)
+
+        if self.updateMode:
+            self.txtTitle.configure(state=DISABLED)
+            self.btnDelete.place(x=510, y=50, width=70, height=40)
+
+        else:
+            self.txtTitle.configure(state=NORMAL)
+
     def __save(self):
         if self.isPasswordMode:
             if self.__validation(self.SAVE_MODE):
@@ -222,9 +285,6 @@ class RightFrame(Frame):
                 Shared.getFrameMiddle().refresh(accountList)
                 for x in self.inputList:
                     x.delete(0,END)
-        else:
-            # TODO ADD Save Note Feature
-            pass
 
     def __delete(self):
         if self.isPasswordMode:
@@ -233,8 +293,11 @@ class RightFrame(Frame):
                 self.savePasswordMode()
                 Shared.getFrameMiddle().refresh(self.db.getAllAccounts())
         else:
-            # TODO Add Delete Note Feature
-            pass
+            result = self.db.deleteNote(self.selectedNote)
+            if result:
+                notelist = self.db.getAllNotes()
+                self.clearNoteFields()
+                Shared.getFrameMiddle().refresh(notelist)
 
     def __update(self):
         if self.isPasswordMode:
@@ -245,9 +308,7 @@ class RightFrame(Frame):
                 self.db.updateAccount(self.selectedAccount)
                 self.savePasswordMode()
                 Shared.getFrameMiddle().refresh(self.db.getAllAccounts())
-        else:
-            # TODO Add Update Note feature
-            pass
+
 
     def __showHidePassword(self,event):
         # pass
@@ -272,10 +333,19 @@ class RightFrame(Frame):
         self.clearFields()
 
 
+
     def clearFields(self):
         self.toggleEditing(False)
         for x in self.inputList:
             x.delete(0,END)
+
+    def clearNoteFields(self):
+        self.updateMode = False
+        self.txtNote.configure(state=NORMAL)
+        self.txtNote.delete("1.0",END)
+
+        self.txtTitle.configure(state=NORMAL)
+        self.txtTitle.delete(0,END)
 
     def __validation(self,mode):
         if mode == self.SAVE_MODE:

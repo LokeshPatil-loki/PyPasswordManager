@@ -13,7 +13,7 @@ class MainUI():
         self.db = db
         self.tk = Tk()
         self.tk.geometry("1300x700")
-        # tk.configure(background="#FFFFFF")
+        self.tk.configure(background=consts.right_background)
         Shared.setDB(self.db)
 
         self.frame_left = LeftFrame(self.tk)
@@ -23,7 +23,7 @@ class MainUI():
         consts.setLeftFame(self.frame_left)
 
         accountlist = db.getAllAccounts()
-        self.frame_middle = MiddleFrame(self.tk,accountlist)
+        self.frame_middle = MiddleFrame(self.tk,accountlist,True)
         self.frame_middle.pack(side=LEFT,anchor=W,expand=Y)
         self.frame_middle.pack_propagate(0)
         # consts.frame_middle = self.frame_middle
