@@ -7,7 +7,9 @@ from UI.MainUI import *
 from Database import *
 import random
 db = DBPassMan()
-LoginUI(db)
+# LoginUI(db)
+db.login("loki","loki")
+MainUI(db)
 
 # loggedInUser = db.login("loki","loki")
 # if loggedInUser:

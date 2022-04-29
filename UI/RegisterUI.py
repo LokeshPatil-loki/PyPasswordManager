@@ -91,6 +91,9 @@ class RegisterUI:
             success = self.db.register(name,username,password)
             if success:
                 tkinter.messagebox.showinfo(title="Success",message=f"{name} is registered with username {username}")
+                self.txtName.delete(0,END)
+                self.txtUsername.delete(0,END)
+                self.txtPassword.delete(0,END)
             else:
                 tkinter.messagebox.showerror(title="Registration Error",message="Username already exists, Try different username")
         # self.containerFrame.grid(row=1,column=1)

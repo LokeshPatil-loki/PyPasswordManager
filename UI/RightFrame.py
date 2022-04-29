@@ -176,15 +176,17 @@ class RightFrame(Frame):
     def __addSaveButton(self):
         if self.isPasswordMode:
             btnSave = Button(self.container_password_frame, text="Save", font=right_container_entry_font, fg="#ffffff",
-                             bg=right_container_input_background, width=37, command=self.__save)
+                             bg=right_container_input_background, width=35, command=self.__save)
 
-            btnSave.pack(side=TOP, anchor=NW,pady=right_container_label_padding,fill="x")
+            # btnSave.pack(side=TOP, anchor=NW,pady=right_container_label_padding,fill="x")
+            btnSave.place(x=30,y=325)
             self.btnSave = btnSave
         else:
             btnSave = Button(self.container_password_frame, text="Save", font=right_container_entry_font, fg="#ffffff",
                              bg=right_container_input_background, width=35, command=self.__save)
 
-            btnSave.pack(side=TOP, anchor=NW, padx=right_container_Entry_padding,pady=(10,0))
+            # btnSave.pack(side=TOP, anchor=NW, padx=right_container_Entry_padding,pady=(10,0))
+            btnSave.place(x=30, y=400)
             btnSave.configure(command=self.__saveNote)
             self.btnSave = btnSave
 
@@ -209,13 +211,14 @@ class RightFrame(Frame):
     def __removeSaveButton(self):
         # self.btnSave.destroy()
         if self.btnSave != None:
-            self.btnSave.pack_forget()
-
+            # self.btnSave.pack_forget()
+            self.place_forget()
     def __addUpdateButton(self):
         btnUpdate = Button(self.container_password_frame, text="Update", font=right_container_entry_font, fg="#ffffff",
                          bg=right_container_input_background, width=35, command=self.__update)
 
-        btnUpdate.pack(side=TOP, anchor=CENTER, pady=right_container_label_padding)
+        # btnUpdate.pack(side=TOP, anchor=CENTER, pady=right_container_label_padding)
+        btnUpdate.place(x=30,y=325)
         self.btnUpdate = btnUpdate
 
     def __removeUpdateButton(self):
@@ -250,7 +253,8 @@ class RightFrame(Frame):
 
 
         # Remove Save Button of Right Frame
-        self.btnSave.pack_forget()
+        # self.btnSave.pack_forget()
+        self.btnSave.place_forget()
         # self.__removeSaveButton()
 
         # Remove Update Button

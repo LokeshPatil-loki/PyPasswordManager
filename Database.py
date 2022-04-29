@@ -177,7 +177,7 @@ class DBPassMan:
         result = cursor.fetchall()
         notelist = []
         for x in result:
-            notelist.append(Note(x[0],x[1],x[2],x[3]))
+            notelist.append(Note(x[0],x[1],x[2],self.decrypt(x[3])))
         return notelist
 
     def deleteNote(self,note):
